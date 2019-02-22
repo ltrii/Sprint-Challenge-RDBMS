@@ -57,8 +57,7 @@ router.post('/', (req, res) => {
   if (
     action.description &&
     action.project_id &&
-    action.notes &&
-    typeof action.is_complete === 'boolean'
+    action.notes
   ) {
     db('projects')
       .where({ id: action.project_id })

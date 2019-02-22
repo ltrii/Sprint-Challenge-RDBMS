@@ -5,6 +5,8 @@ exports.up = function(knex, Promise) {
         table.string('description', 128).notNullable()
         table.text('notes').notNullable()
         table.boolean('is_complete').defaultTo(false)
+        table.integer('project_id').unsigned()
+        table.foreign('project_id').references('projects.id')
     })
   }
 
