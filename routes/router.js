@@ -3,7 +3,7 @@ const actions = require('./actionRouter');
 const express = require('express');
 const router = express.Router();
 
-router.use('/', projects);
-router.use('/', actions);
+router.use('/api/projects/', projects);
+router.use('/api/actions/', actions);
 
 module.exports = router;
