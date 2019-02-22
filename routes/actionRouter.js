@@ -6,19 +6,19 @@ const dbconfig = require('../knexfile');
 const db = knex(dbconfig.development)
 
 router.get('/', (req, res) => {
-  db('projects')
-  .then(projects => {
-      res.json(projects)
+  db('actions')
+  .then(actions => {
+      res.json(actions)
   })
   .catch(() => {
-      res.status(500).json({error: 'Projects cannot be retrieved from the db.'})
+      res.status(500).json({error: 'actions cannot be retrieved from the db.'})
   })
 })
 
 router.get('/:id', (req, res) => {
   const { id } = req.params
-  db('projects')
-    .where('projects.id', id)
+  db('actions')
+    .where('actions.id', id)
     .then(project => {
       const thisProject = project[0]
       db('actions')
@@ -54,7 +54,7 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
     const project = req.body
     if(project.name && project.description && project.is_complete) {
-        db('projects')
+        db('actions')
         .insert(project)
         .then(id => {
             res.status(201).json({ id: id[0]})
