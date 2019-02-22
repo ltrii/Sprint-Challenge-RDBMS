@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
       res.json(actions)
   })
   .catch(() => {
-      res.status(500).json({error: 'actions cannot be retrieved from the db.'})
+      res.status(500).json({error: 'Actions cannot be retrieved from the db.'})
   })
 })
 
@@ -32,7 +32,7 @@ router.get('/:id', (req, res) => {
         .where('actions.project_id', id)
         .then(actions => {
           if (!thisProject) {
-            res.status(404).json({ err: 'A project with that ID could not be found in the db.' })
+            res.status(404).json({ err: 'invalid project id' })
           } else {
             res.json({
               id: thisProject.id,
@@ -51,20 +51,52 @@ router.get('/:id', (req, res) => {
     })
 })
 
+
 router.post('/', (req, res) => {
-    const project = req.body
-    if(project.name && project.description && project.is_complete) {
-        db('actions')
-        .insert(project)
-        .then(id => {
-            res.status(201).json({ id: id[0]})
-        })
-        .catch(() => {
-            res.status(500).json({error: 'Failed to insert the project into the db.'})
-        })
-    } else {
-        res.status(400).json({error: 'Please provide a name, description and if project is completed or not.'})
-    }
+  const action = req.body
+  if (
+    action.description &&
+    action.project_id &&
+    action.notes &&
+    typeof action.is_complete === 'boolean'
+  ) {
+    db('projects')
+      .where({ id: action.project_id })
+      .first()
+      .then(project => {
+        if (!project) {
+          res.status(404).json({ err: 'invalid project id' })
+        } else {
+          db('actions')
+            .insert(action)
+            .then(id => {
+              if (id[0]) {
+                db('actions')
+                  .where('actions.id', id[0])
+                  .then(action => {
+                    res.status(201).json(action)
+                  })
+              }
+            })
+            .catch(() => {
+              res.status(500).json({ err: 'Error creating action' })
+            })
+        }
+      })
+      .catch(() => {
+        res.status(500).json({ err: 'Failed to insert action' })
+      })
+  } else {
+    res.status(404).json({ message: 'Provide all fields' })
+  }
+})
+
+router.delete('/api/actions/:id', (req, res) => {
+  const id = req.params.id
+  db('actions').where('id', id).del().then(actions => {
+    res.status(200).json(actions)
+  })
+  .catch(err => res.status(500).json(err))
 })
 
 
